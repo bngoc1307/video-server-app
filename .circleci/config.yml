@@ -1,0 +1,50 @@
+version: 2.1
+
+# Define the jobs we want to run for this project
+jobs:
+  build:
+    docker:
+      - image: cimg/base:2023.03
+    steps:
+      - checkout
+      - run: echo "this is the build job"
+  prepare-rabbit:
+    docker:
+      - image: docker:17.05.0-ce-git
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache py-pip=9.0.0-r1
+            pip install docker-compose==1.15.0
+      - run:
+          name: Install video server app
+          command: |
+            git clone https://github.com/bngoc1307/video-server-app
+            cd video-server-app
+            docker-compose up -d
+
+  build-and-test:
+      docker:
+        - image: cimg/python:3.11.0
+      steps:
+        - checkout
+        - run:
+            name: Run tests
+            command: |
+              pip install pytest requests
+              git clone https://github.com/bngoc1307/Nhom04_CCPTPM
+              cd Nhom04_CCPTPM
+              pytest
+
+
+# Orchestrate our job run sequence
+workflows:
+  build_and_test:
+    jobs:
+      - prepare-rabbit
+      - build-and-test:
+          requires:
+            - prepare-rabbit
