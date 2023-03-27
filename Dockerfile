@@ -7,6 +7,8 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 build-essential git ffmpeg bc \
 python3 python3-dev python3-pip python3-setuptools python3-wheel
 
+RUN git config --global url."https://github.com".insteadOf git://github.com
+
 # install video-server app
 WORKDIR /opt/video-server-app
 COPY ./ /opt/video-server-app
